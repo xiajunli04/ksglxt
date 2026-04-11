@@ -97,7 +97,7 @@ const handleCancel = async () => {
 const handleDownload = async (filename: string) => {
   try {
     const res = await downloadFile(filename)
-    const blob = new Blob([res.data as BlobPart])
+    const blob = new Blob([res as BlobPart])
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url

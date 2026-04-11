@@ -12,12 +12,14 @@ import com.xjl.service.ISysUserService;
 import com.xjl.util.FileUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -62,11 +64,12 @@ public class SysUserController {
 
         String newFilename = FileUtil.generateFileName(file.getOriginalFilename());
         try {
-            java.nio.file.Path avatarPath = java.nio.file.Paths.get(uploadDir, "avatars");
+            java.nio.file.Path avatarPath = java.nio.file.Paths.get(uploadDir, "avatars").toAbsolutePath();
             if (!java.nio.file.Files.exists(avatarPath)) {
                 java.nio.file.Files.createDirectories(avatarPath);
             }
-            file.transferTo(avatarPath.resolve(newFilename).toFile());
+            java.nio.file.Path dest = avatarPath.resolve(newFilename);
+            file.transferTo(dest);
             String avatarUrl = "/uploads/avatars/" + newFilename;
 
             SysUser update = new SysUser();
@@ -75,7 +78,8 @@ public class SysUserController {
             userService.updateById(update);
             return R.ok(avatarUrl);
         } catch (Exception e) {
-            return R.fail("头像上传失败");
+            log.error("头像上传失败", e);
+            return R.fail("头像上传失败: " + e.getMessage());
         }
     }
 

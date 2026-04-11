@@ -3,6 +3,7 @@ package com.xjl.service.Impl;
 import com.xjl.service.IFileService;
 import com.xjl.util.FileUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -20,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FileServiceImpl implements IFileService {
 
@@ -47,14 +49,15 @@ public class FileServiceImpl implements IFileService {
         String newFilename = FileUtil.generateFileName(originalFilename);
 
         try {
-            Path uploadPath = Paths.get(uploadDir);
+            Path uploadPath = Paths.get(uploadDir).toAbsolutePath();
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
             Path filePath = uploadPath.resolve(newFilename);
-            file.transferTo(filePath.toFile());
+            file.transferTo(filePath);
             return newFilename;
         } catch (IOException e) {
+            log.error("文件上传失败", e);
             throw new RuntimeException("文件上传失败: " + e.getMessage());
         }
     }
@@ -62,7 +65,7 @@ public class FileServiceImpl implements IFileService {
     @Override
     public ResponseEntity<Resource> download(String filename) {
         try {
-            Path filePath = Paths.get(uploadDir).resolve(filename);
+            Path filePath = Paths.get(uploadDir).toAbsolutePath().resolve(filename);
             if (!Files.exists(filePath)) {
                 return ResponseEntity.notFound().build();
             }
@@ -73,6 +76,7 @@ public class FileServiceImpl implements IFileService {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedName + "\"")
                     .body(resource);
         } catch (IOException e) {
+            log.error("文件下载失败", e);
             throw new RuntimeException("文件下载失败: " + e.getMessage());
         }
     }
