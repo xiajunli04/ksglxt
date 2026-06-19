@@ -26,6 +26,14 @@ const roleMap: Record<string, string> = {
   STUDENT: '学生',
 }
 
+const getPrimaryRole = (roles: unknown) => {
+  if (!Array.isArray(roles) || roles.length === 0) {
+    return '-'
+  }
+  const role = String(roles[0])
+  return roleMap[role] || role
+}
+
 const fetchData = async () => {
   loading.value = true
   try {
@@ -100,7 +108,7 @@ onMounted(() => {
         <el-table-column prop="phone" label="手机号" min-width="120" />
         <el-table-column label="角色" width="80">
           <template #default="{ row }">
-            {{ roleMap[(row.roles as string[])[0]] || (row.roles as string[])[0] }}
+            {{ getPrimaryRole(row.roles) }}
           </template>
         </el-table-column>
         <el-table-column label="状态" width="80">

@@ -1,0 +1,30 @@
+# IDE
+.idea/
+.vscode/
+
+# 工具配置
+.playwright-mcp/
+.claude/
+.claude-plugin/
+.super-dev/
+
+# 构建输出
+output/
+target/
+node_modules/
+
+# 日志
+*.log
+
+# 临时文件
+tmp_*
+*.tmp
+
+# 前端
+frontend/node_modules/
+frontend/dist/
+
+# 后端
+backend/target/
+backend/uploads/
+backend/.idea/
